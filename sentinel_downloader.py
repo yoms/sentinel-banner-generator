@@ -4,15 +4,16 @@ import shapely.wkt
 from datetime import datetime, timedelta, date
 import urllib.request
 import logging
+import os.path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sentinel-downloader")
-
-granule_kml = 'data/S2A_OPER.kml'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+granule_kml = os.path.join(dir_path, 'data','S2A_OPER.kml')
 base_url = 'https://sentinel-s2-l1c.s3.amazonaws.com/tiles'
 
 def read_zones_from_data_file():
-    logger.debug("Read zones from kml data")
+    logger.debug("Read zones from kml data %s", granule_kml)
     with open(granule_kml, 'rb') as kmlfile:
         doc=kmlfile.read()
 
@@ -92,6 +93,7 @@ def last_image_date_for_lat_lon(latitude, longitude):
     return date_buffer
     
 if __name__ == '__main__':
+    logger.setLevel(logging.DEBUG)
 #    zones_features = read_zones_from_data_file()
 #    zone = find_zone(zones_features, 1.433333, 43.6)
 #    print(zone.name)
