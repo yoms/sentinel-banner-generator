@@ -1,8 +1,6 @@
 from osgeo import gdal, osr, ogr
 import numpy as np
 import scipy.misc
-from PIL import Image
-import cv2
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -107,7 +105,6 @@ def get_x_y_for_lon_lat(raster_file, lon, lat):
 
 def extract_banner(img_path, x, y, size_x, size_y, out_path):
     logger.debug("Extract banner")
-    im = cv2.imread(img_path)
     y_min = int(y-size_y/2)
     y_max = y_min+size_y
     
@@ -118,18 +115,22 @@ def extract_banner(img_path, x, y, size_x, size_y, out_path):
     logger.debug("Max x : %s"%x_max)
     logger.debug("Min y : %s"%y_min)
     logger.debug("Max y : %s"%y_max)
-    
-    im_out = im[y_min:y_max,x_min:x_max]
+    img = scipy.misc.imread(img_path)
+    rgb = np.zeros((y_max-y_min, x_max-x_min, 3), dtype=np.uint8)
+    rgb[..., 0] = img[y_min:y_max,x_min:x_max, 0]
+    rgb[..., 1] = img[y_min:y_max,x_min:x_max, 1]
+    rgb[..., 2] = img[y_min:y_max,x_min:x_max, 2]
     logger.debug("Write banner in output file %s", out_path)
-    cv2.imwrite(out_path, im_out)
+    scipy.misc.imsave(out_path, rgb)
 
 if __name__ == '__main__':
 
+    logger.setLevel(logging.DEBUG)
     tiff_file = "/tmp/out.tiff"
-    big_png_file = "/tmp/out.png"
+    big_png_file = "/tmp/out_big.png"
     banner_file = "/tmp/out.png"
-    create_raster_from_band('/tmp/tmpbqwr2gny', '/tmp/tmp_7u3_lik', '/tmp/tmpwfk3k_oy',tiff_file)
+#    create_raster_from_band('/tmp/tmpbqwr2gny', '/tmp/tmp_7u3_lik', '/tmp/tmpwfk3k_oy',tiff_file)
     x, y = get_x_y_for_lon_lat(tiff_file, 1.433333, 43.6)
-    create_png_from_raster(tiff_file, big_png_file)
+#    create_png_from_raster(tiff_file, big_png_file)
     extract_banner(big_png_file, x, y,1400, 800, banner_file)
 
