@@ -4,9 +4,13 @@ Generate a banner from Sentinel2 images.
 
 ## Caution
 Unzip ./data/S2A_OPER.kml.zip before use
+
 If the result is dark, be sure your request lat/lon and sizes are in the product, because due to granule generation maybe you are trying to generate a banner from a no data part of the product.
+
 Exemple : 
+
 ![alt text](https://sentinel-s2-l1c.s3.amazonaws.com/tiles/30/T/YN/2017/10/31/0/preview.jpg)
+
 One day maybe i will handle this case, but it seems that i have a life out of my computer.
 ## command line
 Generate banner from the last sentinel2 product at the given position:
