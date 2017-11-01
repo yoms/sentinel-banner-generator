@@ -4,7 +4,10 @@ Generate a banner from Sentinel2 images.
 
 ## Caution
 Unzip ./data/S2A_OPER.kml.zip before use
-
+If the result is dark, be sure your request lat/lon and sizes are in the product, because due to granule generation maybe you are trying to generate a banner from a no data part of the product.
+Exemple : 
+![alt text](https://sentinel-s2-l1c.s3.amazonaws.com/tiles/30/T/YN/2017/10/31/0/preview.jpg)
+One day maybe i will handle this case, but it seems that i have a life out of my computer.
 ## command line
 Generate banner from the last sentinel2 product at the given position:
 ```
@@ -24,6 +27,11 @@ python3 run.py --date 2017-10-28 1.433333 43.600000 /tmp/banner_new.png
 Launch in verbose (Mainly because you love my english, baguette du fromage)
 ```
 python3 run.py --verbose 1.433333 43.600000 /tmp/banner_new.png
+```
+
+If you prefer use docker you can try this way:
+```
+docker run -it -v /tmp/out:/data --rm sbg 1.433333 43.6 --date 2017-10-28 /data/banner.png
 ```
 ## how?
 * The script use the S2A_OPER_GIP_TILPAR_20150622T000000_21000101T000000_ZZ_0007.kml provide by the esa to locate the right zone for the given position.
