@@ -35,7 +35,7 @@ python3 run.py --verbose 1.433333 43.600000 /tmp/banner_new.png
 
 If you prefer use docker you can try this way:
 ```
-docker run -it -v /tmp/out:/data --rm yoms/sentinel-banner-generator 1.433333 43.6 --date 2017-10-28 /data/banner.png
+docker run -v /tmp/out:/data --rm yoms/sentinel-banner-generator 1.433333 43.6 --date 2017-10-28 /data/banner.png
 ```
 ## how?
 * The script use the S2A_OPER_GIP_TILPAR_20150622T000000_21000101T000000_ZZ_0007.kml provide by the esa to locate the right zone for the given position.
