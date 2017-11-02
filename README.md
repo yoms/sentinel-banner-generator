@@ -15,22 +15,22 @@ One day maybe i will handle this case, but it seems that i have a life out of my
 ## command line
 Generate banner from the last sentinel2 product at the given position:
 ```
-python3 run.py 1.433333 43.600000 /tmp/banner_new.png
+python3 sbg.py 1.433333 43.600000 /tmp/banner_new.png
 ```
 
 Generate banner with a specific height and width:
 ```
-python3 run.py --height 396 --width 1584  1.433333 43.600000 /tmp/banner_new.png
+python3 sbg.py --height 396 --width 1584  1.433333 43.600000 /tmp/banner_new.png
 ```
 
 Generate banner from the sentinel2 product at the given position and the given date:
 ```
-python3 run.py --date 2017-10-28 1.433333 43.600000 /tmp/banner_new.png
+python3 sbg.py --date 2017-10-28 1.433333 43.600000 /tmp/banner_new.png
 ```
 
 Launch in verbose (Mainly because you love my english, baguette du fromage)
 ```
-python3 run.py --verbose 1.433333 43.600000 /tmp/banner_new.png
+python3 sbg.py --verbose 1.433333 43.600000 /tmp/banner_new.png
 ```
 
 If you prefer use docker you can try this way:
