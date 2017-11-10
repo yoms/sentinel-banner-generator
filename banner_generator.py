@@ -32,36 +32,43 @@ def create_raster_from_band( red, green, blue, output_file):
     dst_ds = None
     logger.debug("Big raster is write in output_file : %s"%output_file)
 
-def create_png_from_raster(raster_file, output_file):
+def create_png_from_raster(raster_file, output_file, blue_clip=(0.,2500.), red_clip=(0.,2500.), green_clip=(0.,2500.)):
     logger.debug("Create big png in output_file : %s"%output_file)
     raster_ds = gdal.Open(raster_file)
-    maximum_value = 2500.
     bytes_max = 255.  
     
-    logger.debug("Prepare red color, clip raw value at %s"%maximum_value)
-    red_array = np.array(raster_ds.GetRasterBand(1).ReadAsArray())
-    red_array = np.clip(red_array, 0, maximum_value)
-    red_array = (np.float32(red_array)*bytes_max)/maximum_value
-    red_array = red_array.astype(int)
+    if blue_clip[0] > blue_clip[1] : 
+        logger.error("Maximum clip value should be higther than the Minimum clip value")
+        return False
+    if red_clip[0] > red_clip[1] : 
+        logger.error("Maximum clip value should be higther than the Minimum clip value")
+        return False
+    if green_clip[0] > green_clip[1] : 
+        logger.error("Maximum clip value should be higther than the Minimum clip value") 
+        return False
     
-    logger.debug("Prepare blue color, clip raw value at %s"%maximum_value)
-    blue_array = np.array(raster_ds.GetRasterBand(2).ReadAsArray())
-    blue_array = np.clip(blue_array, 0, maximum_value)
-    blue_array = (np.float32(blue_array)*bytes_max)/maximum_value
-    blue_array = blue_array.astype(int)
+    def clip_array(band_index, clip):
+        array = np.array(raster_ds.GetRasterBand(band_index).ReadAsArray())
+        array = np.clip(array, clip[0], clip[1])
+        array = array - clip[0]
+        array = (np.float32(array)*bytes_max)/(clip[1]-clip[0])
+        array = array.astype(int)
+        return array
     
-    logger.debug("Prepare green color, clip raw value at %s"%maximum_value)
-    green_array = np.array(raster_ds.GetRasterBand(3).ReadAsArray())
-    green_array = np.clip(green_array, 0, maximum_value)
-    green_array = (np.float32(green_array)*bytes_max)/maximum_value
-    green_array = green_array.astype(int)
+    logger.debug("Prepare red color, clip raw value at %s, %s"%red_clip)    
+    red_array = clip_array(1, red_clip)
+    logger.debug("Prepare green color, clip raw value at %s, %s"%green_clip)
+    green_array = clip_array(2, green_clip)
+    logger.debug("Prepare blue color, clip raw value at %s, %s"%blue_clip)
+    blue_array = clip_array(3, blue_clip)
     
     rgb = np.zeros((len(red_array), len(red_array[0]), 3), dtype=np.uint8)
     rgb[..., 0] = red_array
-    rgb[..., 1] = blue_array
-    rgb[..., 2] = green_array
+    rgb[..., 1] = green_array
+    rgb[..., 2] = blue_array
     logger.debug("Writing png file in %s"%output_file)
     scipy.misc.imsave(output_file, rgb)
+    return True
     
 def get_x_y_for_lon_lat(raster_file, lon, lat):
     logger.debug("Compute x and y from lon lat")
@@ -129,8 +136,8 @@ if __name__ == '__main__':
     tiff_file = "/tmp/out.tiff"
     big_png_file = "/tmp/out_big.png"
     banner_file = "/tmp/out.png"
-#    create_raster_from_band('/tmp/tmpbqwr2gny', '/tmp/tmp_7u3_lik', '/tmp/tmpwfk3k_oy',tiff_file)
+#    create_raster_from_band( '/tmp/tmp0_if50g9','/tmp/tmpz61ja8cq','/tmp/tmp7dl287r9', tiff_file)
     x, y = get_x_y_for_lon_lat(tiff_file, 1.433333, 43.6)
-#    create_png_from_raster(tiff_file, big_png_file)
+    create_png_from_raster(tiff_file, big_png_file, red_clip=(250., 2500.), blue_clip=(250., 2500.), green_clip=(250., 2500.))
     extract_banner(big_png_file, x, y,1400, 800, banner_file)
 
