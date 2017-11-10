@@ -50,4 +50,4 @@ docker run -v /tmp/out:/data --rm yoms/sentinel-banner-generator 1.433333 43.6 -
 
 ## TODO
 - [x] Add the possibility to compose the banner from others band
-- [ ] Handle lat lon on the border of an product
+- [x] Handle lat lon on the border of an product

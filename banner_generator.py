@@ -123,12 +123,34 @@ def extract_banner(img_path, x, y, size_x, size_y, out_path):
     logger.debug("Min y : %s"%y_min)
     logger.debug("Max y : %s"%y_max)
     img = scipy.misc.imread(img_path)
+    
+    y_min = max(0, min(y_min, len(img)))
+    y_max = max(0, min(y_max, len(img)))
+    x_min = max(0, min(x_min, len(img[0])))
+    x_max = max(0, min(x_max, len(img[0])))
+    
+    logger.debug("After clamp")
+    logger.debug("Min x : %s"%x_min)
+    logger.debug("Max x : %s"%x_max)
+    logger.debug("Min y : %s"%y_min)
+    logger.debug("Max y : %s"%y_max)
+    
+    logger.debug("Image y: %s"%len(img))
+    logger.debug("Image x: %s"%len(img[0]))
+    
+    if y_max == y_min:
+        logger.error("After clamp, image size is Null")
+        return False
+    if x_max == x_min:
+        logger.error("After clamp, image size is Null")
+        return False
     rgb = np.zeros((y_max-y_min, x_max-x_min, 3), dtype=np.uint8)
     rgb[..., 0] = img[y_min:y_max,x_min:x_max, 0]
     rgb[..., 1] = img[y_min:y_max,x_min:x_max, 1]
     rgb[..., 2] = img[y_min:y_max,x_min:x_max, 2]
     logger.debug("Write banner in output file %s", out_path)
     scipy.misc.imsave(out_path, rgb)
+    return True
 
 if __name__ == '__main__':
 
@@ -137,7 +159,10 @@ if __name__ == '__main__':
     big_png_file = "/tmp/out_big.png"
     banner_file = "/tmp/out.png"
 #    create_raster_from_band( '/tmp/tmp0_if50g9','/tmp/tmpz61ja8cq','/tmp/tmp7dl287r9', tiff_file)
-    x, y = get_x_y_for_lon_lat(tiff_file, 1.433333, 43.6)
-    create_png_from_raster(tiff_file, big_png_file, red_clip=(250., 2500.), blue_clip=(250., 2500.), green_clip=(250., 2500.))
-    extract_banner(big_png_file, x, y,1400, 800, banner_file)
+#    x, y = get_x_y_for_lon_lat(tiff_file, 1.433333, 43.6)
+#    create_png_from_raster(tiff_file, big_png_file, red_clip=(250., 2500.), blue_clip=(250., 2500.), green_clip=(250., 2500.))
+#    extract_banner(big_png_file, x, y,1400, 800, banner_file)
+    extract_banner(big_png_file, 0, 0,1400, 800, banner_file)
+    extract_banner(big_png_file, 10980, 10980,1400, 800, banner_file)
+    extract_banner(big_png_file, 20980, 20980,1400, 800, banner_file)
 
