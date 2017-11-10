@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, date
 import urllib.request
 import logging
 import os.path
+import tempfile
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sentinel-downloader")
@@ -48,32 +49,39 @@ def product_exist(zone_name, date):
     except urllib.error.HTTPError:
         return False    
 
-def download_product_in_zone(zone_name, date):
+            
+def download_product_in_zone(zone_name, date, bands = [2,3,4]):
     if not product_exist(zone_name, date):
         return False
     
     zone_url = get_url_for_zone(zone_name)
-    url_string = zone_url+"/"+str(date.year)+"/"+str(date.month)+"/"+str(date.day)+"/0/"
-    b2_url = url_string+"B02.jp2"
-    b3_url = url_string+"B03.jp2"
-    b4_url = url_string+"B04.jp2"
-    try:
-        logger.info("Download B2")
-        b2_file_name, b2_headers = urllib.request.urlretrieve(b2_url)
-        logger.info("B2 downloaded : %s"% b2_file_name)
-        logger.info("Download B3")
-        b3_file_name, b3_headers = urllib.request.urlretrieve(b3_url)
-        logger.info("B3 downloaded : %s"% b3_file_name)
-        logger.info("Download B4")
-        b4_file_name, b4_headers = urllib.request.urlretrieve(b4_url)
-        logger.info("B4 downloaded : %s"% b4_file_name)
-        return {"B2": b2_file_name, "B3": b3_file_name, "B4": b4_file_name}
-    except urllib.error.HTTPError:
-        logger.info("Impossible to find requested product")
-        return False
+    def download_band(band_name):
+        url_string = zone_url+"/"+str(date.year)+"/"+str(date.month)+"/"+str(date.day)+"/0/"
+        url = url_string+"B%02d.jp2"%band
+        try:
+            logger.info("Download band %s at %s"% (band, url))
+            file_name = zone_name+"_"+str(date.year)+"_"+str(date.month)+"_"+str(date.day)+"_"+str(band)
+            file_path = os.path.join(tempfile.gettempdir(), file_name)
+            logger.info("File path will be %s"% file_path)
+            if os.path.isfile(file_path) :
+                logger.info("Retrieve band downloaded in cache : %s"% file_path)
+            else:
+                file_path, headers = urllib.request.urlretrieve(url, file_path)
+                logger.info("Band downloaded : %s"% file_path)
+            return file_path
+        except urllib.error.HTTPError:
+            logger.info("Impossible to find requested product")
+            return None
+            
+    products = {}
+    
+    for band in bands:
+        band_name = "B%02d"%band
+        products[band] = download_band(band_name)
+    return products
             
         
-def download_product(longitude, latitude, date):
+def download_product(longitude, latitude, date, bands = [2,3,4]):
     logger.debug("Download product")
     logger.debug("Longitude : %s"%longitude)
     logger.debug("Latitude : %s"%latitude)
@@ -81,7 +89,7 @@ def download_product(longitude, latitude, date):
     zones_features = read_zones_from_data_file()
     zone = find_zone(zones_features, longitude, latitude)
     logger.debug("Zone find : %s"% zone.name)
-    return download_product_in_zone(zone.name, date)
+    return download_product_in_zone(zone.name, date, bands)
     
 def last_image_date_for_lat_lon(latitude, longitude):
     zones_features = read_zones_from_data_file()
@@ -99,6 +107,7 @@ if __name__ == '__main__':
 #    print(zone.name)
 #    print(get_url_for_zone(zone.name))
 #    download_product_in_zone("31TCJ", datetime(year = 2017, month=10, day=28))
+    print(download_product_in_zone("31TCJ", datetime(year = 2017, month=10, day=28)))
     print(last_image_date_for_lat_lon(1.6667, 43.3))
 #    print(download_product(1.433333, 43.6, datetime(year = 2017, month=10, day=28)))
     
